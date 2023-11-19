@@ -61,7 +61,7 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>basic</module>
+		<module>basic-to-end</module>
 		<module>hypermedia</module>
 		<module>conditional</module>
 		<module>events</module>
