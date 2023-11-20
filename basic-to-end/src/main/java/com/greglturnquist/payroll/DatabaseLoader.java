@@ -36,6 +36,14 @@ public class DatabaseLoader implements CommandLineRunner { // <2>
 	@Override
 	public void run(String... strings) throws Exception { // <4>
 		this.repository.save(new Employee("Frodo", "Baggins", "ring bearer"));
+		this.repository.save(new Employee("Pikachu", "Electric Mouse", "Electric-type Pokémon"));
+		this.repository.save(new Employee("Charizard", "Flame Lizard", "Fire/Flying-type Pokémon"));
+		this.repository.save(new Employee("Squirtle", "Tiny Turtle", "Water-type Pokémon"));
+		this.repository.save(new Employee("Bulbasaur", "Seed Pokémon", "Grass/Poison-type Pokémon"));
+		this.repository.save(new Employee("Agumon", "Dino Lizard", "Rookie-level Digimon"));
+		this.repository.save(new Employee("Gabumon", "Wolf Digimon", "Rookie-level Digimon"));
+		this.repository.save(new Employee("Patamon", "Angel Digimon", "Rookie-level Digimon"));
+		this.repository.save(new Employee("Tentomon", "Bug Digimon", "Rookie-level Digimon"));
 	}
 }
 // end::code[]
