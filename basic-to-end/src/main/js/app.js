@@ -137,12 +137,22 @@ class App extends React.Component { // <1>
 		client({
 			method: 'GET',
 			path: navUri
-		}).done(employeeCollection => {
+		}).then(employeeCollection => {
+			this.links = employeeCollection.entity._links;
+			return employeeCollection.entity._embedded.employees.map(employee =>
+					client({
+						method: 'GET',
+						path: employee._links.self.href
+					})
+				);
+		}).then(employeePromises => {
+			return when.all(employeePromises);
+		}).done(employees => {
 			this.setState({
-				employees: employeeCollection.entity._embedded.employees,
+				employees: employees,
 				attributes: this.state.attributes,
 				pageSize: this.state.pageSize,
-				links: employeeCollection.entity._links
+				links: this.links
 			});
 		});
 	}
