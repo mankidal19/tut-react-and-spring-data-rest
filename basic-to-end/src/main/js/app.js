@@ -44,6 +44,35 @@ class App extends React.Component { // <1>
 		})
 	}
 
+	onCreate(newEmployee) {
+		follow(client, root, ['employees'])
+			.then(employeeCollection => {
+				return client({
+					method: 'POST',
+					path: employeeCollection.entity._links.self.href,
+					entity: newEmployee,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+			}).then(response => {
+				return follow(client, root, [
+					{rel: 'employees',
+					params: {
+						'size': this.state.pageSize
+					}}
+				]);
+			}).done(response => {
+				// Since the user probably wants to see the newly created employee, 
+				// you can then use the hypermedia controls and navigate to the last entry.
+				if(typeof response.entity._links.last !== 'undefined') {
+					this.onNavigate(response.entity._links.last.href);
+				} else {
+					this.onNavigate(response.entity._links.self.href);
+				}
+			});
+	}
+
 	render() { // <3>
 		return (
 			<EmployeeList employees={this.state.employees}/>
