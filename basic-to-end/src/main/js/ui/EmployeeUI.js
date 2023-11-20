@@ -1,7 +1,17 @@
 const React = require('react');
+const ReactDOM = require('react-dom');
 
 // tag::employee-list[]
 export class EmployeeList extends React.Component{
+
+	constructor(props) {
+		super(props);
+		this.handleNavFirst = this.handleNavFirst.bind(this);
+		this.handleNavPrev = this.handleNavPrev.bind(this);
+		this.handleNavNext = this.handleNavNext.bind(this);
+		this.handleNavLast = this.handleNavLast.bind(this);
+		this.handleInput = this.handleInput.bind(this);
+	}
 	
 	handleNavFirst(e) {
 		e.preventDefault();
