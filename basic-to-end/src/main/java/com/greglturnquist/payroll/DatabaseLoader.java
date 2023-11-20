@@ -20,6 +20,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.greglturnquist.payroll.model.Employee;
+import com.greglturnquist.payroll.repo.EmployeeRepository;
 
 /**
  * @author Greg Turnquist
