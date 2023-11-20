@@ -6,6 +6,7 @@ const ReactDOM = require('react-dom'); // <2>
 const client = require('./client'); // <3>
 const follow = require('./follow'); // function to hop multiple links by "rel"
 const when = require('when');
+const stompClient = require('./websocket-listener');
 
 const {EmployeeList} = require('./ui/EmployeeUI')
 const {CreateDialog} = require('./ui/DialogsUI')
@@ -19,7 +20,7 @@ class App extends React.Component { // <1>
 
 	constructor(props) {
 		super(props);
-		this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
+		this.state = {employees: [], attributes: [], pageSize: 2, links: {}, page: {}};
 		this.updatePageSize = this.updatePageSize.bind(this);
 		this.onCreate = this.onCreate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
@@ -27,8 +28,16 @@ class App extends React.Component { // <1>
 		this.onUpdate = this.onUpdate.bind(this);
 	}
 
+	// In React, a component’s componentDidMount() function gets called after 
+	// it has been rendered in the DOM. That is also the right time to register 
+	// for WebSocket events, because the component is now online and ready for business.
 	componentDidMount() { // <2>
 		this.loadFromServer(this.state.pageSize);
+		stompClient.register([
+			{route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
+			{route: '/topic/updateEmployee', callback: this.refreshCurrentPage}
+			{route: '/topic/deleteEmployee', callback: this.refreshCurrentPage}
+		]);
 	}
 
 	loadFromServer(pageSize) {
@@ -46,6 +55,7 @@ class App extends React.Component { // <1>
 			}).then(schema => {
 				this.schema = schema.entity;
 				this.links = employeeCollection.entity._links;
+				this.page = employeeCollection.entity.page;
 				return employeeCollection;
 			});
 		}).then(employeeCollection => {
@@ -63,6 +73,7 @@ class App extends React.Component { // <1>
 				employees: employees,
 				attributes: Object.keys(this.schema.properties),
 				pageSize: pageSize,
+				page: this.page,
 				links: this.links
 			});
 			console.log(this.state);
@@ -139,6 +150,7 @@ class App extends React.Component { // <1>
 			path: navUri
 		}).then(employeeCollection => {
 			this.links = employeeCollection.entity._links;
+			this.page = employeeCollection.entity.page;
 			return employeeCollection.entity._embedded.employees.map(employee =>
 					client({
 						method: 'GET',
@@ -152,9 +164,54 @@ class App extends React.Component { // <1>
 				employees: employees,
 				attributes: this.state.attributes,
 				pageSize: this.state.pageSize,
+				page: this.page,
 				links: this.links
 			});
 		});
+	}
+
+	refreshAndGoToLastPage(message) {
+		console.log('Page is being refreshed. Perhaps a new employee is added? Message: ', message);
+		follow(client, root, [{
+			rel: 'employees',
+			params: {size: this.state.pageSize}
+		}]).done(response => {
+			if(response.entity._links.last !== undefined) {
+				this.onNavigate(response.entity_.links.last.href);
+			} else {
+				this.onNavigate(response.entity_.links.self.href);
+			}
+		});
+	}
+
+	refreshCurrentPage(message) {
+		console.log('Refreshing current page. Message: ', message);
+		follow(client, root, [{
+			rel: 'employees',
+			params: {
+				size: this.state.pageSize,
+				page: this.state.page.number
+			}
+		}]).then(employeeCollection => {
+			this.links = employeeCollection.entity._links;
+			this.page = employeeCollection.entity.page;
+			return employeeCollection.entity._embedded.employees.map(employee => {
+				return client({
+					method: 'GET',
+					path: employee._links.self.href
+				})
+			});
+		}).then(employeePromises => {
+			return when.all(employeePromises)
+		}).then(employees => {
+			this.setState({
+				employees: employees,
+				attributes: Object.keys(this.schema.properties),
+				pageSize: this.state.pageSize,
+				page: this.page,
+				links: this.links
+			})
+		})
 	}
 
 	render() { // <3>
