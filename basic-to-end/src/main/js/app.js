@@ -35,7 +35,7 @@ class App extends React.Component { // <1>
 		this.loadFromServer(this.state.pageSize);
 		stompClient.register([
 			{route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
-			{route: '/topic/updateEmployee', callback: this.refreshCurrentPage}
+			{route: '/topic/updateEmployee', callback: this.refreshCurrentPage},
 			{route: '/topic/deleteEmployee', callback: this.refreshCurrentPage}
 		]);
 	}
@@ -80,6 +80,10 @@ class App extends React.Component { // <1>
 		});
 	}
 
+	// To simplify your code’s management of state, remove the old way. 
+	// In other words, submit your POST, PUT, and DELETE calls, 
+	// but do not use their results to update the UI’s state. 
+	// Instead, wait for the WebSocket event to circle back and then do the update.
 	onCreate(newEmployee) {
 		follow(client, root, ['employees'])
 			.then(employeeCollection => {
@@ -91,21 +95,6 @@ class App extends React.Component { // <1>
 						'Content-Type': 'application/json'
 					}
 				});
-			}).then(response => {
-				return follow(client, root, [
-					{rel: 'employees',
-					params: {
-						'size': this.state.pageSize
-					}}
-				]);
-			}).done(response => {
-				// Since the user probably wants to see the newly created employee, 
-				// you can then use the hypermedia controls and navigate to the last entry.
-				if(typeof response.entity._links.last !== 'undefined') {
-					this.onNavigate(response.entity._links.last.href);
-				} else {
-					this.onNavigate(response.entity._links.self.href);
-				}
 			});
 	}
 
@@ -113,8 +102,6 @@ class App extends React.Component { // <1>
 		client({
 			method: 'DELETE',
 			path: employee._links.self.href
-		}).done(response => {
-			this.loadFromServer(this.state.pageSize);
 		});
 	}
 
@@ -128,7 +115,7 @@ class App extends React.Component { // <1>
 				'If-Match': employee.headers.Etag
 			}
 		}).done(response => { // on fulfilled
-			this.loadFromServer(this.state.pageSize);
+			/* Let the websocket handler update the state */
 		}, response => { // on rejected
 			if(response.status.code === 412) { //  Precondition Failed 
 				alert(`DENIED: Unable to update ${employee.entity._links.self.href}.\n Your copy is stale! :(`);
