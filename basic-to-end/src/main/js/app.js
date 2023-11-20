@@ -5,6 +5,7 @@ const React = require('react'); // <1>
 const ReactDOM = require('react-dom'); // <2>
 const client = require('./client'); // <3>
 const follow = require('./follow'); // function to hop multiple links by "rel"
+const when = require('when');
 
 const {EmployeeList} = require('./ui/EmployeeUI')
 const {CreateDialog} = require('./ui/CreateDialogUI')
@@ -30,6 +31,7 @@ class App extends React.Component { // <1>
 	}
 
 	loadFromServer(pageSize) {
+		// to get headers like ETags, you need to fetch each resource individually.
 		follow(client, root, [
 			{rel: 'employees', params: {size: pageSize}}
 			]
@@ -42,14 +44,25 @@ class App extends React.Component { // <1>
 				}
 			}).then(schema => {
 				this.schema = schema.entity;
+				this.links = employeeCollection.entity._links;
 				return employeeCollection;
 			});
-		}).done(response => {
+		}).then(employeeCollection => {
+			// This is what you need to fetch an ETag header for each employee.
+			return employeeCollection.entity._embedded.employees.map(employee => {
+				client({
+					method: 'GET',
+					path: employee._links.self.href
+				})
+			});
+		}).then(employeePromises => {
+			return when.all(employeePromises);
+		}).done(employees => {
 			this.setState({
-				employees: response.entity._embedded.employees,
+				employees: employees,
 				attributes: Object.keys(this.schema.properties),
 				pageSize: pageSize,
-				links: response.entity._links
+				links: this.links
 			});
 			console.log(this.state);
 		});
