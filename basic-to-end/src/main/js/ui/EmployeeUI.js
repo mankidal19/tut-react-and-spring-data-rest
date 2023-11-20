@@ -1,6 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 
+const {UpdateDialog} = require('./DialogsUI')
+
 // tag::employee-list[]
 export class EmployeeList extends React.Component{
 
@@ -45,8 +47,13 @@ export class EmployeeList extends React.Component{
 	}
 
 	render() {
+		console.log('employees:', this.props.employees);
 		const employees = this.props.employees.map(employee =>
-			<Employee key={employee._links.self.href} data={employee} onDelete={this.props.onDelete}/>
+			<Employee key={employee.entity._links.self.href} 
+			data={employee} 
+			attributes={this.props.attributes} 
+			onDelete={this.props.onDelete}
+			onUpdate={this.props.onUpdate}/>
 		);
 
 		const navLinks = [];
@@ -99,9 +106,14 @@ class Employee extends React.Component{
 	render() {
 		return (
 			<tr>
-				<td>{this.props.data.firstName}</td>
-				<td>{this.props.data.lastName}</td>
-				<td>{this.props.data.description}</td>
+				<td>{this.props.data.entity.firstName}</td>
+				<td>{this.props.data.entity.lastName}</td>
+				<td>{this.props.data.entity.description}</td>
+				<td>
+					<UpdateDialog employee={this.props.data} 
+					attributes={this.props.attributes} 
+					onUpdate={this.props.onUpdate}/>
+				</td>
 				<td>
 					<button onClick={this.handleDelete}>DELETE!</button>
 				</td>

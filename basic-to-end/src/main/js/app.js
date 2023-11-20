@@ -8,7 +8,7 @@ const follow = require('./follow'); // function to hop multiple links by "rel"
 const when = require('when');
 
 const {EmployeeList} = require('./ui/EmployeeUI')
-const {CreateDialog} = require('./ui/CreateDialogUI')
+const {CreateDialog} = require('./ui/DialogsUI')
 
 const root = '/api';
 
@@ -24,6 +24,7 @@ class App extends React.Component { // <1>
 		this.onCreate = this.onCreate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
 		this.onNavigate = this.onNavigate.bind(this);
+		this.onUpdate = this.onUpdate.bind(this);
 	}
 
 	componentDidMount() { // <2>
@@ -49,12 +50,12 @@ class App extends React.Component { // <1>
 			});
 		}).then(employeeCollection => {
 			// This is what you need to fetch an ETag header for each employee.
-			return employeeCollection.entity._embedded.employees.map(employee => {
+			return employeeCollection.entity._embedded.employees.map(employee =>
 				client({
 					method: 'GET',
 					path: employee._links.self.href
 				})
-			});
+			);
 		}).then(employeePromises => {
 			return when.all(employeePromises);
 		}).done(employees => {
@@ -106,6 +107,26 @@ class App extends React.Component { // <1>
 		});
 	}
 
+	onUpdate(employee, updatedEmployee) {
+		client({
+			method: 'PUT',
+			path: employee.entity._links.self.href,
+			entity: updatedEmployee,
+			headers: {
+				'Content-Type': 'application/json',
+				'If-Match': employee.headers.Etag
+			}
+		}).done(response => { // on fulfilled
+			this.loadFromServer(this.state.pageSize);
+		}, response => { // on rejected
+			if(response.status.code === 412) { //  Precondition Failed 
+				alert(`DENIED: Unable to update ${employee.entity._links.self.href}.\n Your copy is stale! :(`);
+			} else {
+				alert('Ops. Something went wrong!');
+			}
+		})
+	}
+
 	updatePageSize(newPageSize) {
 		if(newPageSize !== this.state.pageSize) {
 			this.loadFromServer(newPageSize);
@@ -133,9 +154,11 @@ class App extends React.Component { // <1>
 			<EmployeeList employees={this.state.employees} 
 				links={this.state.links} 
 				pageSize={this.state.pageSize} 
+				attributes = {this.state.attributes} 
 				onDelete={this.onDelete} 
 				updatePageSize={this.updatePageSize} 
 				onNavigate={this.onNavigate} 
+				onUpdate = {this.onUpdate}
 			/>
 			</div>
 		)
