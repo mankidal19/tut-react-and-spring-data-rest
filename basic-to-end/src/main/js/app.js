@@ -51,6 +51,7 @@ class App extends React.Component { // <1>
 				pageSize: pageSize,
 				links: response.entity._links
 			});
+			console.log(this.state);
 		});
 	}
 

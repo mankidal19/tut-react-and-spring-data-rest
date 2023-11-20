@@ -27,12 +27,15 @@ export class CreateDialog extends React.Component {
     }
 
     render() {
-        const inputs = this.props.attributes.forEach(attribute =>
+        const inputs = this.props.attributes.map(attribute =>
             <p key={attribute}>
                 <input type='text' placeholder={attribute} ref={attribute} className='field'/>
             </p>
             );
-         
+        
+        //console.log('attributes: ', this.props.attributes);
+        //console.log('inputs: ', inputs);
+
         // React does not create event handlers on every DOM element. 
         // Instead, it has a much more performant and sophisticated solution. 
         // You need not manage that infrastructure and can instead focus on writing functional code.
