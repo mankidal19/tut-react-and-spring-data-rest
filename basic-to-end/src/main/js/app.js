@@ -5,6 +5,7 @@ const React = require('react'); // <1>
 const ReactDOM = require('react-dom'); // <2>
 const client = require('./client'); // <3>
 const {EmployeeList} = require('./ui/EmployeeUI')
+const {CreateDialog} = require('./ui/CreateDialogUI')
 // end::vars[]
 
 // tag::app[]
@@ -73,6 +74,32 @@ class App extends React.Component { // <1>
 			});
 	}
 
+	onDelete(employee) {
+		client({
+			method: 'DELETE',
+			path: employee._links.self.href
+		}).done(response => {
+			this.loadFromServer(this.state.pageSize);
+		});
+	}
+
+	// handle page size change input
+	handleInput(e) {
+		e.preventDefault();
+		const pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+		if(/^[0-9]+$/.test(pageSize)) { // input has digits only
+			this.props.updatePageSize(pageSize);
+		} else { // invalid input
+			ReactDOM.findDOMNode(this.refs.pageSize).value = '';
+		}
+	}
+
+	updatePageSize(newPageSize) {
+		if(newPageSize !== this.state.pageSize) {
+			this.loadFromServer(newPageSize);
+		}
+	}
+
 	onNavigate(navUri) {
 		client({
 			method: 'GET',
@@ -109,7 +136,10 @@ class App extends React.Component { // <1>
 
 	render() { // <3>
 		return (
+			<div>
+			<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
 			<EmployeeList employees={this.state.employees}/>
+			</div>
 		)
 	}
 }

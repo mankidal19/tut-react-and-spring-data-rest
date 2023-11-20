@@ -4,19 +4,40 @@ const React = require('react');
 export class EmployeeList extends React.Component{
 	render() {
 		const employees = this.props.employees.map(employee =>
-			<Employee key={employee._links.self.href} data={employee}/>
+			<Employee key={employee._links.self.href} data={employee} onDelete={this.props.onDelete}/>
 		);
+
+		const navLinks = [];
+		if('first' in this.props.links) {
+			navLinks.push(<button key='first' onClick={this.handleNavFirst}>&lt;&lt;</button>);
+		}
+		if('prev' in this.props.links) {
+			navLinks.push(<button key='prev' onClick={this.handleNavPrev}>&lt;</button>);
+		}
+		if('next' in this.props.links) {
+			navLinks.push(<button key='next' onClick={this.handleNavNext}>&gt;</button>);
+		}
+		if('last' in this.props.links) {
+			navLinks.push(<button key='last' onClick={this.handleNavLast}>&gt;&gt;</button>);
+		}
+
 		return (
-			<table>
-				<tbody>
-					<tr>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Description</th>
-					</tr>
-					{employees}
-				</tbody>
-			</table>
+			<div>
+				<input ref='pageSize' defaultValue={this.props.pageSize} onInput={this.handleInput}/>
+				<table>
+					<tbody>
+						<tr>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Description</th>
+						</tr>
+						{employees}
+					</tbody>
+				</table>
+				<div>
+					{navLinks}
+				</div>
+			</div>
 		);
 	}
 }
@@ -24,12 +45,24 @@ export class EmployeeList extends React.Component{
 
 // tag::employee[]
 class Employee extends React.Component{
+	constructor(props)  {
+		super(props);
+		this.handleDelete = this.handleDelete.bind(this);
+	}
+
+	handleDelete() {
+		this.props.onDelete(this.props.data);
+	}
+
 	render() {
 		return (
 			<tr>
 				<td>{this.props.data.firstName}</td>
 				<td>{this.props.data.lastName}</td>
 				<td>{this.props.data.description}</td>
+				<td>
+					<button onClick={this.handleDelete}>DELETE!</button>
+				</td>
 			</tr>
 		);
 	}

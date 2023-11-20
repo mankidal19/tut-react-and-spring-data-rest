@@ -1,7 +1,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-class CreateDialog extends React.Component {
+export class CreateDialog extends React.Component {
 
     constructor(props) {
         super(props);
