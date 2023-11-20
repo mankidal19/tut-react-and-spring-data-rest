@@ -20,12 +20,14 @@ class App extends React.Component { // <1>
 
 	constructor(props) {
 		super(props);
-		this.state = {employees: [], attributes: [], pageSize: 2, links: {}, page: {}};
+		this.state = {employees: [], attributes: [], page: 1, pageSize: 2, links: {}, page: {}};
 		this.updatePageSize = this.updatePageSize.bind(this);
 		this.onCreate = this.onCreate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
 		this.onNavigate = this.onNavigate.bind(this);
 		this.onUpdate = this.onUpdate.bind(this);
+		this.refreshCurrentPage = this.refreshCurrentPage.bind(this);
+		this.refreshAndGoToLastPage = this.refreshAndGoToLastPage.bind(this);
 	}
 
 	// In React, a component’s componentDidMount() function gets called after 
@@ -86,8 +88,8 @@ class App extends React.Component { // <1>
 	// Instead, wait for the WebSocket event to circle back and then do the update.
 	onCreate(newEmployee) {
 		follow(client, root, ['employees'])
-			.then(employeeCollection => {
-				return client({
+			.done(employeeCollection => {
+				client({
 					method: 'POST',
 					path: employeeCollection.entity._links.self.href,
 					entity: newEmployee,
@@ -164,15 +166,16 @@ class App extends React.Component { // <1>
 			params: {size: this.state.pageSize}
 		}]).done(response => {
 			if(response.entity._links.last !== undefined) {
-				this.onNavigate(response.entity_.links.last.href);
+				this.onNavigate(response.entity._links.last.href);
 			} else {
-				this.onNavigate(response.entity_.links.self.href);
+				this.onNavigate(response.entity._links.self.href);
 			}
 		});
 	}
 
 	refreshCurrentPage(message) {
 		console.log('Refreshing current page. Message: ', message);
+		console.log('Current state: ', this.state);
 		follow(client, root, [{
 			rel: 'employees',
 			params: {
@@ -208,6 +211,7 @@ class App extends React.Component { // <1>
 			<EmployeeList employees={this.state.employees} 
 				links={this.state.links} 
 				pageSize={this.state.pageSize} 
+				page={this.state.page} 
 				attributes = {this.state.attributes} 
 				onDelete={this.onDelete} 
 				updatePageSize={this.updatePageSize} 
