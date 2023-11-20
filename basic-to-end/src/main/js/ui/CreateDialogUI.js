@@ -32,7 +32,10 @@ class CreateDialog extends React.Component {
                 <input type='text' placeholder={attribute} ref={attribute} className='field'/>
             </p>
             );
-        
+         
+        // React does not create event handlers on every DOM element. 
+        // Instead, it has a much more performant and sophisticated solution. 
+        // You need not manage that infrastructure and can instead focus on writing functional code.
         return (
             <div>
                 <a href='#createEmployee'>Create</a>
