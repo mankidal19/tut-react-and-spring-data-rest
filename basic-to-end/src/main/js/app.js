@@ -73,6 +73,40 @@ class App extends React.Component { // <1>
 			});
 	}
 
+	onNavigate(navUri) {
+		client({
+			method: 'GET',
+			path: navUri
+		}).done(employeeCollection => {
+			this.setState({
+				employees: employeeCollection.entity._embedded.employees;
+				attributes: this.state.attributes,
+				pageSize: this.state.pageSize,
+				links: employeeCollection.entity._links
+			});
+		});
+	}
+
+	handleNavFirst(e) {
+		e.preventDefault();
+		this.props.onNavigate(this.props.links.first.href);
+	}
+
+	handleNavPrev(e) {
+		e.preventDefault();
+		this.props.onNavigate(this.props.links.prev.href);
+	}
+
+	handleNavNext(e) {
+		e.preventDefault();
+		this.props.onNavigate(this.props.links.next.href);
+	}
+
+	handleNavLast(e) {
+		e.preventDefault();
+		this.props.onNavigate(this.props.links.last.href);
+	}
+
 	render() { // <3>
 		return (
 			<EmployeeList employees={this.state.employees}/>
