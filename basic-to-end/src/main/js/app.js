@@ -4,8 +4,13 @@
 const React = require('react'); // <1>
 const ReactDOM = require('react-dom'); // <2>
 const client = require('./client'); // <3>
+const follow = require('./follow'); // function to hop multiple links by "rel"
+
 const {EmployeeList} = require('./ui/EmployeeUI')
 const {CreateDialog} = require('./ui/CreateDialogUI')
+
+const root = '/api';
+
 // end::vars[]
 
 // tag::app[]
@@ -13,7 +18,11 @@ class App extends React.Component { // <1>
 
 	constructor(props) {
 		super(props);
-		this.state = {employees: []};
+		this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
+		this.updatePageSize = this.updatePageSize.bind(this);
+		this.onCreate = this.onCreate.bind(this);
+		this.onDelete = this.onDelete.bind(this);
+		this.onNavigate = this.onNavigate.bind(this);
 	}
 
 	componentDidMount() { // <2>
@@ -40,7 +49,7 @@ class App extends React.Component { // <1>
 				employees: response.entity._embedded.employees,
 				attributes: Object.keys(this.schema.properties),
 				pageSize: pageSize,
-				links: response.employees._links
+				links: response.entity._links
 			});
 		})
 	}
@@ -106,7 +115,7 @@ class App extends React.Component { // <1>
 			path: navUri
 		}).done(employeeCollection => {
 			this.setState({
-				employees: employeeCollection.entity._embedded.employees;
+				employees: employeeCollection.entity._embedded.employees,
 				attributes: this.state.attributes,
 				pageSize: this.state.pageSize,
 				links: employeeCollection.entity._links
@@ -138,7 +147,10 @@ class App extends React.Component { // <1>
 		return (
 			<div>
 			<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
-			<EmployeeList employees={this.state.employees}/>
+			<EmployeeList employees={this.state.employees} links={this.state.links} pageSize={this.state.pageSize} 
+			onDelete={this.onDelete} handleInput={this.handleInput} handleNavFirst={this.handleNavFirst} 
+			handleNavPrev={this.handleNavPrev} handleNavNext={this.handleNavNext} handleNavLast={this.handleNavLast}
+			/>
 			</div>
 		)
 	}

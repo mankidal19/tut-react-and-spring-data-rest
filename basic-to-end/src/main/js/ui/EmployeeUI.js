@@ -2,6 +2,8 @@ const React = require('react');
 
 // tag::employee-list[]
 export class EmployeeList extends React.Component{
+	
+
 	render() {
 		const employees = this.props.employees.map(employee =>
 			<Employee key={employee._links.self.href} data={employee} onDelete={this.props.onDelete}/>
@@ -9,21 +11,21 @@ export class EmployeeList extends React.Component{
 
 		const navLinks = [];
 		if('first' in this.props.links) {
-			navLinks.push(<button key='first' onClick={this.handleNavFirst}>&lt;&lt;</button>);
+			navLinks.push(<button key='first' onClick={this.props.handleNavFirst}>&lt;&lt;</button>);
 		}
 		if('prev' in this.props.links) {
-			navLinks.push(<button key='prev' onClick={this.handleNavPrev}>&lt;</button>);
+			navLinks.push(<button key='prev' onClick={this.props.handleNavPrev}>&lt;</button>);
 		}
 		if('next' in this.props.links) {
-			navLinks.push(<button key='next' onClick={this.handleNavNext}>&gt;</button>);
+			navLinks.push(<button key='next' onClick={this.props.handleNavNext}>&gt;</button>);
 		}
 		if('last' in this.props.links) {
-			navLinks.push(<button key='last' onClick={this.handleNavLast}>&gt;&gt;</button>);
+			navLinks.push(<button key='last' onClick={this.props.handleNavLast}>&gt;&gt;</button>);
 		}
 
 		return (
 			<div>
-				<input ref='pageSize' defaultValue={this.props.pageSize} onInput={this.handleInput}/>
+				<input ref='pageSize' defaultValue={this.props.pageSize} onInput={this.props.handleInput}/>
 				<table>
 					<tbody>
 						<tr>
