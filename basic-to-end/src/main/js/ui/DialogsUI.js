@@ -89,12 +89,14 @@ export class UpdateDialog extends React.Component {
             <div key={this.props.employee.entity._links.self.href}>
                 <a href={'#' + dialogId}>UPDATE!</a>
                 <div id={dialogId} className='modalDialog'>
-                    <a href='#' title='Close' className='close'>X</a>
-                    <h2>Update an employee</h2>
-                    <form>
-                        {inputs}
-                        <button onClick={this.handleSubmit}>UPDATE!!</button>
-                    </form>
+                    <div>  
+                        <a href='#' title='Close' className='close'>X</a>
+                        <h2>Update an employee</h2>
+                        <form>
+                            {inputs}
+                            <button onClick={this.handleSubmit}>UPDATE!!</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         );
