@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.greglturnquist.payroll.model.Employee;
+
 /**
  * @author Greg Turnquist
  */

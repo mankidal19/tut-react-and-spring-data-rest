@@ -17,6 +17,8 @@ package com.greglturnquist.payroll;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import com.greglturnquist.payroll.model.Employee;
+
 /**
  * @author Greg Turnquist
  */

@@ -7,9 +7,10 @@ import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.stereotype.Component;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import com.greglturnquist.payroll.Employee;
+import com.greglturnquist.payroll.model.Employee;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Component
 @RepositoryEventHandler(Employee.class)
