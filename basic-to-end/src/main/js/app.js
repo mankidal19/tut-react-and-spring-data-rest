@@ -51,7 +51,7 @@ class App extends React.Component { // <1>
 				pageSize: pageSize,
 				links: response.entity._links
 			});
-		})
+		});
 	}
 
 	onCreate(newEmployee) {
@@ -92,17 +92,6 @@ class App extends React.Component { // <1>
 		});
 	}
 
-	// handle page size change input
-	handleInput(e) {
-		e.preventDefault();
-		const pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
-		if(/^[0-9]+$/.test(pageSize)) { // input has digits only
-			this.props.updatePageSize(pageSize);
-		} else { // invalid input
-			ReactDOM.findDOMNode(this.refs.pageSize).value = '';
-		}
-	}
-
 	updatePageSize(newPageSize) {
 		if(newPageSize !== this.state.pageSize) {
 			this.loadFromServer(newPageSize);
@@ -123,33 +112,16 @@ class App extends React.Component { // <1>
 		});
 	}
 
-	handleNavFirst(e) {
-		e.preventDefault();
-		this.props.onNavigate(this.props.links.first.href);
-	}
-
-	handleNavPrev(e) {
-		e.preventDefault();
-		this.props.onNavigate(this.props.links.prev.href);
-	}
-
-	handleNavNext(e) {
-		e.preventDefault();
-		this.props.onNavigate(this.props.links.next.href);
-	}
-
-	handleNavLast(e) {
-		e.preventDefault();
-		this.props.onNavigate(this.props.links.last.href);
-	}
-
 	render() { // <3>
 		return (
 			<div>
 			<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
-			<EmployeeList employees={this.state.employees} links={this.state.links} pageSize={this.state.pageSize} 
-			onDelete={this.onDelete} handleInput={this.handleInput} handleNavFirst={this.handleNavFirst} 
-			handleNavPrev={this.handleNavPrev} handleNavNext={this.handleNavNext} handleNavLast={this.handleNavLast}
+			<EmployeeList employees={this.state.employees} 
+				links={this.state.links} 
+				pageSize={this.state.pageSize} 
+				onDelete={this.onDelete} 
+				updatePageSize={this.updatePageSize} 
+				onNavigate={this.onNavigate} 
 			/>
 			</div>
 		)
